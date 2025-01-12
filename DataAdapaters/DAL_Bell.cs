@@ -153,6 +153,7 @@ namespace ZionAPI.DataAdapaters
                     tblItemMaster oItem = new tblItemMaster();
                     oItem.ItemName = Convert.ToString(dr["ITEMNAME"]);
                     oItem.ItemCode = Convert.ToString(dr["ITEMCODE"]);
+                    oItem.PRate = Convert.ToDecimal(dr["PRATE"]).ToString("0.00");
                     oItem.Rate = Convert.ToDecimal(dr["Rate"]).ToString("0.00");
                     oItem.MRP = Convert.ToDecimal(dr["MRP"]).ToString("0.00");
                     oItem.CATEGORY = Convert.ToString(dr["CATEGORY"]);
@@ -165,7 +166,7 @@ namespace ZionAPI.DataAdapaters
             }
             return objBillItems.ToArray();
         }
-        public string GetStockTransactions(string category, string transtype, string date1, string date2)
+        public string GetStockTransactions(string category, string transtype, string date1, string date2,string strUserName)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -178,7 +179,8 @@ namespace ZionAPI.DataAdapaters
                 cmd.Parameters.AddWithValue("@TRANS_TYPE", transtype);
                 cmd.Parameters.AddWithValue("@FROMDATE", date1);
                 cmd.Parameters.AddWithValue("@TODATE", date2);
-
+                cmd.Parameters.AddWithValue("@USERNAME", strUserName);
+                
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
                 table.Load(myReader);
@@ -261,6 +263,26 @@ namespace ZionAPI.DataAdapaters
                 cmd.Parameters.AddWithValue("@PASSWORD", users.password);
                 cmd.Parameters.AddWithValue("@FIRSTNAME", users.firstname);
                 cmd.Parameters.AddWithValue("@LASTNAME", users.lastname);
+                myCon.Open();
+                myReader = cmd.ExecuteReader();
+                table.Load(myReader);
+                myReader.Close();
+                myCon.Close();
+            }
+            return "Update successfull!";
+        }
+        public string UpdatedPurchareRateMinOrder(tblItemMaster item)
+        {
+            DataTable table = new DataTable();
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(strDBConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand("BELL_UPD_ITEMS_PRATE_MINORDER", myCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@ITEMCODE", item.ItemCode);
+                cmd.Parameters.AddWithValue("@PRATE", item.PRate);
+                cmd.Parameters.AddWithValue("@MINORDERALERT", item.MinOrderAlert);
+                cmd.Parameters.AddWithValue("@USERNAME", item.USERNAME);                
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
                 table.Load(myReader);
@@ -529,7 +551,11 @@ namespace ZionAPI.DataAdapaters
                     oItem.TotalBills = Convert.ToInt32(dr["TotalBills"]);
                     oItem.Area = Convert.ToString(dr["AREA"]);
                     oItem.BillDate = Convert.ToString(dr["BillDate"]);
-                    oItem.Amount = Convert.ToDecimal(dr["Amount"]).ToString("0.00");
+                    //oItem.ActionDate = Convert.ToString(dr["ActionDate"]);
+                    oItem.Purchase_Amount = Convert.ToDecimal(dr["Purchase_Amount"]).ToString("0.00");
+                    oItem.Amount = Convert.ToDecimal(dr["Amount"]).ToString("0.00"); //sales amount
+                    oItem.Profit_Amount = Convert.ToDecimal(dr["Profit_Amount"]).ToString("0.00");
+                    oItem.Profit_Percent = Convert.ToDecimal(dr["Profit_Percent"]).ToString("0.00") + "%";
                     oItem.UserName = Convert.ToString(dr["USERNAME"]);
                     objBillItems.Add(oItem);
                 }

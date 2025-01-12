@@ -93,6 +93,12 @@ namespace ZionWebAPI.Controllers
         {
             return objDAL_Bell.Bell_GetAreaList(type, date1, date2);
         }
+        //[Route("bell/Bell_GetAllCategories")]
+        //[HttpGet]
+        //public BellAreaMaster[] Bell_GetAreaList(string type, string date1, string date2) //GetAllLSItems
+        //{
+        //    return objDAL_Bell.Bell_GetAreaList(type, date1, date2);
+        //}
         [Route("bell/GetLSCustomersByAreaShop/{area}/{shop}")]
         [HttpGet]
         public tblBell_Orders[] GetLSCustomersByAreaShop(string area,string shop)

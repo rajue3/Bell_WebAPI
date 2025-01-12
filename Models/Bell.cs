@@ -42,6 +42,7 @@ namespace ZionAPI
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string MRP { get; set; }
+        public string PRate { get; set; }  //PURCHASE RATE ADDED ON 11-JAN-25
         public string Rate { get; set; }
         public string Qty { get; set; }
         public string Amount { get; set; }
@@ -99,7 +100,11 @@ namespace ZionAPI
     {
         public string Area { get; set; }
         public string BillDate { get; set; }
-        public string Amount { get; set; }
+        //public string ActionDate { get; set; }
+        public string Purchase_Amount { get; set; }
+        public string Amount { get; set; } //sale_amount
+        public string Profit_Amount { get; set; }
+        public string Profit_Percent { get; set; }
         public int TotalBills { get; set; }
         public string UserName { get; set; }
     }
