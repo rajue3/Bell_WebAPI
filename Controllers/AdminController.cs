@@ -34,11 +34,11 @@ namespace ZionWebAPI.Controllers
         }
         [Route("bell/GetAllItems/{area}/{shop}/{date1}/{date2}")]
         [HttpGet]
-        public tblBills_Bell[] GetAllItems(string area, string shop,string date1, string date2)
+        public tblBills_Bell[] GetAllItems(string area, string shop, string date1, string date2)
         {
-            return objDAL_Bell.GetAllItems(area, shop,date1,date2);
+            return objDAL_Bell.GetAllItems(area, shop, date1, date2);
         }
-        
+
         //[Route("bell/GetWeeklySales/{area}/{date1}")]
         //[HttpGet]
         //public tblSalesReport[] GetWeeklySales(string area, string date1)
@@ -53,9 +53,9 @@ namespace ZionWebAPI.Controllers
         }
         [Route("bell/GetSalebyShopsBillDate/{reportType}/{area}/{shop}/{date1}/{date2}")]
         [HttpGet]
-        public string GetSalebyShopsBillDate(string reportType,string area, string shop, string date1, string date2)
+        public string GetSalebyShopsBillDate(string reportType, string area, string shop, string date1, string date2)
         {
-            return objDAL_Bell.GetSalebyShopsBillDate(reportType,area, shop, date1, date2);
+            return objDAL_Bell.GetSalebyShopsBillDate(reportType, area, shop, date1, date2);
         }
         //[Route("bell/GetSaleItemsbyBillDate/{area}/{shop}/{date1}/{date2}")]
         //[HttpGet]
@@ -65,15 +65,15 @@ namespace ZionWebAPI.Controllers
         //}
         [Route("bell/GetTotalSalesByShop/{area}/{shop}/{date1}/{date2}/{totalamount}")]
         [HttpGet]
-        public string GetTotalSalesByShop(string area, string shop, string date1, string date2,int totalamount)
+        public string GetTotalSalesByShop(string area, string shop, string date1, string date2, int totalamount)
         {
             return objDAL_Bell.GetTotalSalesByShop(area, shop, date1, date2, totalamount);
         }
         [Route("bell/GetWeeklySalesByItems/{type}/{area}/{shop}/{item}/{date1}/{date2}")]
         [HttpGet]
-        public string GetWeeklySalesByItems(string type,string area,string shop, string item ,string date1,string date2)
+        public string GetWeeklySalesByItems(string type, string area, string shop, string item, string date1, string date2)
         {
-            return objDAL_Bell.GetWeeklySalesByItems(type,area, shop,item,date1,date2);
+            return objDAL_Bell.GetWeeklySalesByItems(type, area, shop, item, date1, date2);
         }
         [Route("bell/GetWeeklySalesByItems")]
         [HttpPost]
@@ -101,10 +101,10 @@ namespace ZionWebAPI.Controllers
         //}
         [Route("bell/GetLSCustomersByAreaShop/{area}/{shop}")]
         [HttpGet]
-        public tblBell_Orders[] GetLSCustomersByAreaShop(string area,string shop)
+        public tblBell_Orders[] GetLSCustomersByAreaShop(string area, string shop)
         {
             //not using for now.
-            return objDAL_Bell.GetLSCustomersByAreaShop(area,shop);
+            return objDAL_Bell.GetLSCustomersByAreaShop(area, shop);
         }
         [Route("bell/GetLSTotalSalesByArea/{area}/{date1}/{date2}")]
         [HttpGet]
@@ -129,18 +129,18 @@ namespace ZionWebAPI.Controllers
         }
         [Route("bell/GetLSItemsByMonth/{custid}/{area}/{shop}/{date1}")]
         [HttpGet]
-        public tblBills_Bell[] GetLSItemsByMonth(string custid,string area, string shop, string date1)
+        public tblBills_Bell[] GetLSItemsByMonth(string custid, string area, string shop, string date1)
         {
             //not using for now.
-            return objDAL_Bell.GetLSItemsByMonth(custid,area,shop, date1);
+            return objDAL_Bell.GetLSItemsByMonth(custid, area, shop, date1);
         }
         [Route("bell/Bell_GetAllCustomers/{line}/{area}/{shop}")]
         [HttpGet]
-        public tblBellCustomersNew[] Bell_GetAllCustomers(string line,string area, string shop)
+        public tblBellCustomersNew[] Bell_GetAllCustomers(string line, string area, string shop)
         {
-            return objDAL_Bell.Bell_GetAllCustomers(line,area, shop);
+            return objDAL_Bell.Bell_GetAllCustomers(line, area, shop);
         }
-        
+
         [Route("bell/GetLSCustomerDetails/{ID}")]
         [HttpGet]
         public tblBellCustomers GetLSCustomerDetails(int ID)
@@ -152,14 +152,14 @@ namespace ZionWebAPI.Controllers
         [HttpGet]
         public tblBills_Bell[] GetAllLSCustomers(string area, string date1, string date2)
         {
-            return objDAL_Bell.GetAllLSCustomers(area,date1,date2);
+            return objDAL_Bell.GetAllLSCustomers(area, date1, date2);
         }
 
         [Route("bell/GetLSItems/{area}/{shopname}")]
         [HttpGet]
         public tblBills_Bell[] GetAllLSItems(string area, string shopname)
         {
-            return objDAL_Bell.GetAllLSItems(area,shopname);
+            return objDAL_Bell.GetAllLSItems(area, shopname);
         }
         [Route("SaveCustLocation")]
         [HttpPost]
@@ -177,10 +177,10 @@ namespace ZionWebAPI.Controllers
         //this is to authenticate for only admin credentials. for user validation use validation method.
         [Route("bell/authenticate/{username}/{password}/{usertype}")]
         [HttpGet]
-        public tblUsers authenticate(string username,string password,string usertype)
+        public tblUsers authenticate(string username, string password, string usertype)
         {
-            return objDAL_Bell.authenticate(username,password,usertype);
-        }        
+            return objDAL_Bell.authenticate(username, password, usertype);
+        }
         //not sure using it or not.
         [Route("bell/validateuser")]
         [HttpPost]
@@ -206,6 +206,13 @@ namespace ZionWebAPI.Controllers
         {
             return objDAL_Bell.updatedUserDetails(user);
         }
+
+        [HttpPost]
+        [Route("bell/UpdatedPurchareRateMinOrder")]
+        public string UpdatedPurchareRateMinOrder(tblItemMaster item)
+        {
+            return objDAL_Bell.UpdatedPurchareRateMinOrder(item);
+        }
         //End of Bell methods.
 
         [Route("admin/GetAllItems/{id}")]
@@ -214,7 +221,7 @@ namespace ZionWebAPI.Controllers
         {
             return objDAL.GetItemByID(id);
         }
-        
+
         [Route("admin/SaveItemDetailsByPut")]
         [HttpPut]
         public string SaveItemDetailsByPut(tblItemDetails obj)
@@ -233,7 +240,7 @@ namespace ZionWebAPI.Controllers
         {
             return objDAL.DeleteItem(id);
         }
-        
+
         private static Random random = new Random();
         public static string GetRandomString(int length)
         {
@@ -256,7 +263,7 @@ namespace ZionWebAPI.Controllers
                 {
                     string extension = Path.GetExtension(file.FileName);
                     if (filename == "new")
-                    {                        
+                    {
                         filename = filename + GetRandomString(8);
                     }
                     //var fileName = Path.GetFileName(file.FileName);
@@ -312,7 +319,7 @@ namespace ZionWebAPI.Controllers
             //But unable to read or use the image copied under App_Data due to restrictions in IIS level. Hence FTP is better.
             string strServerImagesPath = ConfigurationManager.AppSettings["UploadImagePath"];
             var file = HttpContext.Current.Request.Files.Count > 0 ?
-            HttpContext.Current.Request.Files[0] : null;            
+            HttpContext.Current.Request.Files[0] : null;
 
             try
             {
@@ -320,7 +327,7 @@ namespace ZionWebAPI.Controllers
                 {
                     var fileName = Path.GetFileName(file.FileName);
                     //var path = Path.Combine(HttpContext.Current.Server.MapPath("~/zionimages"),fileName );
-                    var path = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"),fileName );                    
+                    var path = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), fileName);
                     file.SaveAs(path);
 
                     //file.SaveAs("https://zionwellmark.in/ZionImages/" + fileName);
@@ -356,13 +363,13 @@ namespace ZionWebAPI.Controllers
         [HttpGet]
         public tblItemMaster[] GetStockDetails(string type, string category)
         {
-            return objDAL_Bell.GetStockDetails(type,category);
+            return objDAL_Bell.GetStockDetails(type, category);
         }
-        [Route("bell/GetStockTransactions/{category}/{transtype}/{date1}/{date2}")]
+        [Route("bell/GetStockTransactions/{category}/{transtype}/{date1}/{date2}/{username}")]
         [HttpGet]
-        public string GetStockTransactions(string category, string transtype, string date1, string date2)
+        public string GetStockTransactions(string category, string transtype, string date1, string date2, string username)
         {
-            return objDAL_Bell.GetStockTransactions(category, transtype, date1, date2);
+            return objDAL_Bell.GetStockTransactions(category, transtype, date1, date2, username);
         }
     }
 }

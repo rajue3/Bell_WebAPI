@@ -166,7 +166,7 @@ namespace ZionAPI.DataAdapaters
             }
             return objBillItems.ToArray();
         }
-        public string GetStockTransactions(string category, string transtype, string date1, string date2,string strUserName)
+        public string GetStockTransactions(string category, string transtype, string date1, string date2, string strUserName)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -180,7 +180,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.Parameters.AddWithValue("@FROMDATE", date1);
                 cmd.Parameters.AddWithValue("@TODATE", date2);
                 cmd.Parameters.AddWithValue("@USERNAME", strUserName);
-                
+
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
                 table.Load(myReader);
@@ -282,7 +282,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.Parameters.AddWithValue("@ITEMCODE", item.ItemCode);
                 cmd.Parameters.AddWithValue("@PRATE", item.PRate);
                 cmd.Parameters.AddWithValue("@MINORDERALERT", item.MinOrderAlert);
-                cmd.Parameters.AddWithValue("@USERNAME", item.USERNAME);                
+                cmd.Parameters.AddWithValue("@USERNAME", item.USERNAME);
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
                 table.Load(myReader);
@@ -327,7 +327,7 @@ namespace ZionAPI.DataAdapaters
         }
 
         //Code not completed, currenlty using GetAllLSItems to get ItemNames -09-06-24
-        public tblBills_Bell[] GetAllItems(string area, string shopname,string date1, string date2)
+        public tblBills_Bell[] GetAllItems(string area, string shopname, string date1, string date2)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -562,7 +562,7 @@ namespace ZionAPI.DataAdapaters
             }
             return objBillItems.ToArray();
         }
-        public string GetTotalSalesByShop(string strArea,string strShop, string date1, string date2,int totalAmount)
+        public string GetTotalSalesByShop(string strArea, string strShop, string date1, string date2, int totalAmount)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -702,7 +702,7 @@ namespace ZionAPI.DataAdapaters
             }
             return objBillItems.ToArray();
         }
-        public tblBellCustomersNew[] Bell_GetAllCustomers(string strLine,string strArea, string strShop)
+        public tblBellCustomersNew[] Bell_GetAllCustomers(string strLine, string strArea, string strShop)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -899,7 +899,7 @@ namespace ZionAPI.DataAdapaters
         //    }
         //    return serializer.Serialize(rows);
         //}
-        public string GetOperatorName(string strArea,string date1)
+        public string GetOperatorName(string strArea, string date1)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -923,7 +923,7 @@ namespace ZionAPI.DataAdapaters
             }
             return operatorName;
         }
-        public string GetWeekDaysLinesCount(string BillDate,string strArea)
+        public string GetWeekDaysLinesCount(string BillDate, string strArea)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -945,7 +945,7 @@ namespace ZionAPI.DataAdapaters
             else
                 return "0";
         }
-        public string GetSalebyShopsBillDate(string reportType,string strArea, string strShop, string date1, string date2)
+        public string GetSalebyShopsBillDate(string reportType, string strArea, string strShop, string date1, string date2)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -953,7 +953,7 @@ namespace ZionAPI.DataAdapaters
             //{
             //    return GetItemWiseSales_New(reportType,strArea,strShop,date1,date2);
             //}
-            string strProcedure = "USP_SHOP_WISE_SALES_COUNT_BY_BILLDATE";
+            string strProcedure = "USP_SHOP_WISE_SALES_COUNT_BY_BILLDATE_15JAN25";
             using (SqlConnection myCon = new SqlConnection(strDBConnectionString))
             {
                 if (reportType == "BILLWISE")
@@ -979,32 +979,45 @@ namespace ZionAPI.DataAdapaters
             decimal ColumnTotal;
             decimal varTotal;
             string operatorName = "";
-                foreach (DataColumn col in table.Columns)
+            string strLineCount = "";
+            foreach (DataColumn col in table.Columns)
+            {
+                ColumnTotal = 0;
+                varTotal = 0;
+                if (col.ColumnName != "BILLNUMBER" && col.ColumnName != "SHOPNAME" && col.ColumnName != "NAME" && col.ColumnName != "ITEMCODE" && col.ColumnName.IndexOf("QTY") == -1)
                 {
-                    ColumnTotal = 0;
-                    varTotal = 0;
-                    if (col.ColumnName != "BILLNUMBER" && col.ColumnName != "SHOPNAME" && col.ColumnName != "NAME" && col.ColumnName != "ITEMCODE" && col.ColumnName.IndexOf("QTY") == -1)
+                    foreach (DataRow dr in table.Rows)
                     {
-                        foreach (DataRow dr in table.Rows)
-                        {
                         //if (dr[col] == null) varTotal = 0;
                         if (!(dr[col] is DBNull)) varTotal = Convert.ToDecimal(dr[col]);
-                            else varTotal = varTotal = 0;
-                        
-                            ColumnTotal = ColumnTotal + varTotal;
+                        else varTotal = varTotal = 0;
+
+                        ColumnTotal = ColumnTotal + varTotal;
+                    }
+                    if (reportType == "ITEMWISE")
+                    {
+                        if (col.ColumnName != "Profit_Percent" && col.ColumnName != "Profit_Amt" && col.ColumnName != "Sales_Amt")
+                        {                            
+                            strLineCount = GetWeekDaysLinesCount(dtNew.Columns[col.ColumnName].ColumnName, strArea);
+                            dtNew.Columns[col.ColumnName].ColumnName = dtNew.Columns[col.ColumnName].ColumnName + " - Tot:" + ColumnTotal.ToString() + " Lines:" + strLineCount;
                         }
-                        operatorName = GetOperatorName(strArea, col.ColumnName);
-                        if (reportType == "ITEMWISE")
+                        else if (col.ColumnName == "Profit_Amt" || col.ColumnName == "Sales_Amt")
                         {
-                            dtNew.Columns[col.ColumnName].ColumnName = dtNew.Columns[col.ColumnName].ColumnName + " (Tot: " + ColumnTotal.ToString() + ") Lines: " + GetWeekDaysLinesCount(dtNew.Columns[col.ColumnName].ColumnName,strArea);
-                        }
-                        else
-                        {
-                            dtNew.Columns[col.ColumnName].ColumnName = dtNew.Columns[col.ColumnName].ColumnName + " (Tot: " + ColumnTotal.ToString() + ") - " + operatorName;
+                            dtNew.Columns[col.ColumnName].ColumnName = dtNew.Columns[col.ColumnName].ColumnName + " - Tot:" + ColumnTotal.ToString();
                         }
                     }
-                    //row.Add(col.ColumnName, dr[col]);
-                }            
+                    else
+                    {
+                        //if (col.ColumnName != "Profit_Percent" && col.ColumnName != "Profit_Amt" && col.ColumnName != "Sales_Amt")
+                        //{
+                        //    operatorName = GetOperatorName(strArea, col.ColumnName);
+                        //}
+                        operatorName = GetOperatorName(strArea, col.ColumnName);
+                        dtNew.Columns[col.ColumnName].ColumnName = dtNew.Columns[col.ColumnName].ColumnName + " - Tot: " + ColumnTotal.ToString() + " - " + operatorName;
+                    }
+                }
+                //row.Add(col.ColumnName, dr[col]);
+            }
 
             //return ConvertDataTableToJson(table);
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
@@ -1026,7 +1039,7 @@ namespace ZionAPI.DataAdapaters
                 rows.Add(row);
             }
             return serializer.Serialize(rows);
-        }        
+        }
 
         //not using...
         public string GetItemWiseSales_New(string reportType, string strArea, string strShop, string date1, string date2)
@@ -1036,7 +1049,7 @@ namespace ZionAPI.DataAdapaters
             SqlDataReader myReader;
             string strProcedure = "USP_SHOP_WISE_SALES_COUNT_BY_BILLDATE";
             using (SqlConnection myCon = new SqlConnection(strDBConnectionString))
-            {                
+            {
                 SqlCommand cmd = new SqlCommand(strProcedure, myCon);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@HEADER", reportType);
@@ -1154,7 +1167,7 @@ namespace ZionAPI.DataAdapaters
                 rows.Add(row);
             }
             return serializer.Serialize(rows);
-         }
+        }
         public string GetWeeklySalesByItems(searchPayLoad objRequest)
         {
             DataTable table = new DataTable();
@@ -1195,10 +1208,10 @@ namespace ZionAPI.DataAdapaters
                 }
                 return serializer.Serialize(rows);
             }
-            else { return "";}
+            else { return ""; }
         }
-        public string GetWeeklySalesByItems(string strType,string strArea, string strShop, string strItem, string date1, string date2)
-            {
+        public string GetWeeklySalesByItems(string strType, string strArea, string strShop, string strItem, string date1, string date2)
+        {
             DataTable table = new DataTable();
             SqlDataReader myReader;
             using (SqlConnection myCon = new SqlConnection(strDBConnectionString))
@@ -1207,8 +1220,8 @@ namespace ZionAPI.DataAdapaters
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@TYPE", strType);
                 cmd.Parameters.AddWithValue("@AREA", strArea);
-                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@','/'));
-                cmd.Parameters.AddWithValue("@ITEMNAME", strItem.Replace('@','/'));
+                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@ITEMNAME", strItem.Replace('@', '/'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", date1);
                 cmd.Parameters.AddWithValue("@BILLDATE2", date2);
 
@@ -1235,7 +1248,7 @@ namespace ZionAPI.DataAdapaters
             }
             return serializer.Serialize(rows);
 
-            
+
         }
         private string ConvertDataTableToJson(DataTable dataTable)
         {
@@ -1246,7 +1259,7 @@ namespace ZionAPI.DataAdapaters
             }
             return jsonString;
         }
-        
+
         //End of Bell methods.
 
         public string DataTableToJSONWithStrBuilder(DataTable table)
