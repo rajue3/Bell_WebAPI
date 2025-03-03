@@ -158,9 +158,53 @@ namespace ZionAPI.DataAdapaters
                     oItem.MRP = Convert.ToDecimal(dr["MRP"]).ToString("0.00");
                     oItem.CATEGORY = Convert.ToString(dr["CATEGORY"]);
                     oItem.Qty = Convert.ToString(dr["QTY"]);
+                    oItem.Manufacture = Convert.ToString(dr["Manufacture"]);
+                    oItem.PACKINGTYPE = Convert.ToString(dr["PACKINGTYPE"]);
                     oItem.Description = Convert.ToString(dr["Description"]);
-                    oItem.STOCK = Convert.ToInt64(dr["STOCK"]);
+                    oItem.TOTALITEMSINPACK = Convert.ToString(dr["TOTALITEMSINPACK"]);
                     oItem.MinOrderAlert = Convert.ToInt32(dr["MinOrderAlert"]);
+                    oItem.STOCK = Convert.ToInt64(dr["STOCK"]);
+                    oItem.Cartons = Convert.ToInt64(dr["Cartons"]);
+                    oItem.Packets = Convert.ToInt64(dr["Packets"]);                    
+                    objBillItems.Add(oItem);
+                }
+            }
+            return objBillItems.ToArray();
+        }
+        public tblItemMaster[] GetPendingOrders(string strType, string strGroupBy)
+        {
+            DataTable table = new DataTable();
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(strDBConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand("BELL_GET_PENDING_ORDERS", myCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Type", strType);
+                cmd.Parameters.AddWithValue("@GROUPBYLINE", strGroupBy);
+                myCon.Open();
+                myReader = cmd.ExecuteReader();
+                table.Load(myReader);
+                myReader.Close();
+                myCon.Close();
+            }
+            List<tblItemMaster> objBillItems = new List<tblItemMaster>();
+            if (table != null && table.Rows.Count > 0)
+            {
+                foreach (DataRow dr in table.Rows)
+                {
+                    tblItemMaster oItem = new tblItemMaster();
+                    oItem.ItemCode = Convert.ToString(dr["ITEMCODE"]);
+                    oItem.ItemName = Convert.ToString(dr["ITEMNAME"]);
+                    //oItem.TOTALITEMSINPACK = Convert.ToString(dr["TOTALITEMSINPACK"]);
+                    oItem.TOTAL_PACKS = Convert.ToInt64(dr["TOTAL_PACKS"]);
+                    oItem.RETURN_PACKS = Convert.ToInt64(dr["RETURN_PACKS"]);
+                    oItem.DAMAGE_PACKS = Convert.ToInt64(dr["DAMAGE_PACKS"]);
+                    //actual stock out
+                    oItem.STOCK = Convert.ToInt64(dr["TOTAL_PACKS"]) - Convert.ToInt64(dr["RETURN_PACKS"]) - Convert.ToInt64(dr["DAMAGE_PACKS"]);
+                    oItem.ActionDate = Convert.ToString(dr["BILLDATE"]);
+                    oItem.USERNAME = Convert.ToString(dr["USERNAME"]);
+                    oItem.LINE = Convert.ToString(dr["LINE"]);
+
                     objBillItems.Add(oItem);
                 }
             }
@@ -282,6 +326,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.Parameters.AddWithValue("@ITEMCODE", item.ItemCode);
                 cmd.Parameters.AddWithValue("@PRATE", item.PRate);
                 cmd.Parameters.AddWithValue("@MINORDERALERT", item.MinOrderAlert);
+                cmd.Parameters.AddWithValue("@STOCK", item.STOCK);
                 cmd.Parameters.AddWithValue("@USERNAME", item.USERNAME);
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
@@ -461,7 +506,7 @@ namespace ZionAPI.DataAdapaters
                 SqlCommand cmd = new SqlCommand("BELL_SP_GET_All_Customer_BILL_DETAILS", myCon);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Area", strArea);
-                cmd.Parameters.AddWithValue("@Shop", strShop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@Shop", strShop.Replace('@', '/').Replace('$', '&'));
                 //cmd.Parameters.AddWithValue("@FROMDATE", null);
                 //cmd.Parameters.AddWithValue("@TODATE", null);
                 myCon.Open();
@@ -562,7 +607,7 @@ namespace ZionAPI.DataAdapaters
             }
             return objBillItems.ToArray();
         }
-        public string GetTotalSalesByShop(string strArea, string strShop, string date1, string date2, int totalAmount)
+        public string GetTotalSalesByShop(string strArea, string strAreaLine, string strShop, string date1, string date2, int totalAmount)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -571,7 +616,8 @@ namespace ZionAPI.DataAdapaters
                 SqlCommand cmd = new SqlCommand("BELL_SHOP_WISE_TOTAL_SALES", myCon);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Area", strArea);
-                cmd.Parameters.AddWithValue("@SHOP", strShop);
+                cmd.Parameters.AddWithValue("@Area_Line", strAreaLine);
+                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", Convert.ToDateTime(date1));
                 cmd.Parameters.AddWithValue("@BILLDATE2", Convert.ToDateTime(date2));
                 cmd.Parameters.AddWithValue("@AMOUNT", totalAmount);
@@ -629,7 +675,7 @@ namespace ZionAPI.DataAdapaters
             }
             return objBillItems.ToArray();
         }
-        public tblBills_Bell[] GetLSItemsByAreaDate(string strArea, string billDate)
+        public tblBills_Bell[] GetLSItemsByAreaDate(string strReportName, string strArea, string strShop, string billDate)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -637,7 +683,9 @@ namespace ZionAPI.DataAdapaters
             {
                 SqlCommand cmd = new SqlCommand("BELL_GET_LS_ItemsByArea_Date", myCon);
                 cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@ReportName", strReportName);
                 cmd.Parameters.AddWithValue("@Area", strArea);
+                cmd.Parameters.AddWithValue("@Shop", strShop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@BILLDATE", Convert.ToDateTime(billDate));
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
@@ -678,7 +726,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@CUSTID", custid);
                 cmd.Parameters.AddWithValue("@AREA", area);
-                cmd.Parameters.AddWithValue("@SHOP", shop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@SHOP", shop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@ORDERDATE", Convert.ToDateTime(date1));
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
@@ -712,7 +760,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Line", strLine);
                 cmd.Parameters.AddWithValue("@Area", strArea);
-                cmd.Parameters.AddWithValue("@Shop", strShop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@Shop", strShop.Replace('@', '/').Replace('$', '&'));
                 myCon.Open();
                 myReader = cmd.ExecuteReader();
                 table.Load(myReader);
@@ -839,7 +887,7 @@ namespace ZionAPI.DataAdapaters
                 SqlCommand cmd = new SqlCommand("BELL_GET_INACTIVE_SHOPS", myCon);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@AREA", strArea);
-                //cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/'));
+                //cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", date1);
                 cmd.Parameters.AddWithValue("@BILLDATE2", date2);
 
@@ -945,7 +993,7 @@ namespace ZionAPI.DataAdapaters
             else
                 return "0";
         }
-        public string GetSalebyShopsBillDate(string reportType, string strArea, string strShop, string date1, string date2)
+        public string GetSalebyShopsBillDate(string reportType, string strArea,string strAreaLine,string strShop, string date1, string date2)
         {
             DataTable table = new DataTable();
             SqlDataReader myReader;
@@ -953,7 +1001,7 @@ namespace ZionAPI.DataAdapaters
             //{
             //    return GetItemWiseSales_New(reportType,strArea,strShop,date1,date2);
             //}
-            string strProcedure = "USP_SHOP_WISE_SALES_COUNT_BY_BILLDATE_15JAN25";
+            string strProcedure = "USP_SHOP_WISE_SALES_COUNT_BY_BILLDATE_26JAN25";
             using (SqlConnection myCon = new SqlConnection(strDBConnectionString))
             {
                 if (reportType == "BILLWISE")
@@ -964,7 +1012,8 @@ namespace ZionAPI.DataAdapaters
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@HEADER", reportType);
                 cmd.Parameters.AddWithValue("@AREA", strArea);
-                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@AREA_LINE", strAreaLine);
+                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", date1);
                 cmd.Parameters.AddWithValue("@BILLDATE2", date2);
 
@@ -1054,7 +1103,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@HEADER", reportType);
                 cmd.Parameters.AddWithValue("@AREA", strArea);
-                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", date1);
                 cmd.Parameters.AddWithValue("@BILLDATE2", date2);
 
@@ -1143,7 +1192,7 @@ namespace ZionAPI.DataAdapaters
                 SqlCommand cmd = new SqlCommand("USP_ITEMS_WISE_SALES_COUNT_BY_SHOP", myCon);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@AREA", strArea);
-                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", date1);
                 cmd.Parameters.AddWithValue("@BILLDATE2", date2);
 
@@ -1178,7 +1227,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@TYPE", objRequest.reportType);
                 cmd.Parameters.AddWithValue("@AREA", objRequest.area);
-                cmd.Parameters.AddWithValue("@SHOP", objRequest.shop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@SHOP", objRequest.shop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@ITEMNAME", objRequest.itemname.Replace('@', '/'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", objRequest.date1);
                 cmd.Parameters.AddWithValue("@BILLDATE2", objRequest.date2);
@@ -1220,7 +1269,7 @@ namespace ZionAPI.DataAdapaters
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@TYPE", strType);
                 cmd.Parameters.AddWithValue("@AREA", strArea);
-                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/'));
+                cmd.Parameters.AddWithValue("@SHOP", strShop.Replace('@', '/').Replace('$', '&'));
                 cmd.Parameters.AddWithValue("@ITEMNAME", strItem.Replace('@', '/'));
                 cmd.Parameters.AddWithValue("@BILLDATE1", date1);
                 cmd.Parameters.AddWithValue("@BILLDATE2", date2);

@@ -51,12 +51,20 @@ namespace ZionAPI
         public string TOTALITEMSINPACK { get; set; }
         public string TOTALITEMSINCARTON { get; set; }
         public string CATEGORY { get; set; }
+        public string Manufacture { get; set; }
         public string PACKINGTYPE { get; set; }
         //public string Status { get; set; }
-        public long STOCK { get; set; } //PACKETS
+        public long STOCK { get; set; } //Total PACKETS / final Stock Out
+        public long Cartons { get; set; } //Cartons
+        public long Packets { get; set; } //loos packets
         public string USERNAME { get; set; }
         public int MinOrderAlert { get; set; }        
         public string ActionDate { get; set; }
+        public long TOTAL_PACKS { get; set; }
+        public long RETURN_PACKS { get; set; } 
+        public long DAMAGE_PACKS { get; set; }
+        public string LINE { get; set; }
+
     }
     public class tblCustomers
     {
@@ -98,6 +106,7 @@ namespace ZionAPI
     }
     public class tblSalesReportNew
     {
+        public string Line { get; set; }
         public string Area { get; set; }
         public string BillDate { get; set; }
         //public string ActionDate { get; set; }

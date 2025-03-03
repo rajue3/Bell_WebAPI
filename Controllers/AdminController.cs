@@ -51,11 +51,11 @@ namespace ZionWebAPI.Controllers
         {
             return objDAL_Bell.GetInactiveShops(area, shop, date1, date2);
         }
-        [Route("bell/GetSalebyShopsBillDate/{reportType}/{area}/{shop}/{date1}/{date2}")]
+        [Route("bell/GetSalebyShopsBillDate/{reportType}/{area}/{arealine}/{shop}/{date1}/{date2}")]
         [HttpGet]
-        public string GetSalebyShopsBillDate(string reportType, string area, string shop, string date1, string date2)
+        public string GetSalebyShopsBillDate(string reportType, string area,string arealine, string shop, string date1, string date2)
         {
-            return objDAL_Bell.GetSalebyShopsBillDate(reportType, area, shop, date1, date2);
+            return objDAL_Bell.GetSalebyShopsBillDate(reportType, area, arealine, shop, date1, date2);
         }
         //[Route("bell/GetSaleItemsbyBillDate/{area}/{shop}/{date1}/{date2}")]
         //[HttpGet]
@@ -63,11 +63,11 @@ namespace ZionWebAPI.Controllers
         //{
         //    return objDAL_Bell.GetSaleItemsbyBillDate(area, shop, date1, date2);
         //}
-        [Route("bell/GetTotalSalesByShop/{area}/{shop}/{date1}/{date2}/{totalamount}")]
+        [Route("bell/GetTotalSalesByShop/{area}/{arealine}/{shop}/{date1}/{date2}/{totalamount}")]
         [HttpGet]
-        public string GetTotalSalesByShop(string area, string shop, string date1, string date2, int totalamount)
+        public string GetTotalSalesByShop(string area,string arealine, string shop, string date1, string date2, int totalamount)
         {
-            return objDAL_Bell.GetTotalSalesByShop(area, shop, date1, date2, totalamount);
+            return objDAL_Bell.GetTotalSalesByShop(area, arealine,shop, date1, date2, totalamount);
         }
         [Route("bell/GetWeeklySalesByItems/{type}/{area}/{shop}/{item}/{date1}/{date2}")]
         [HttpGet]
@@ -120,12 +120,11 @@ namespace ZionWebAPI.Controllers
             //not using for now.
             return objDAL_Bell.GetLSTotalSalesByArea_New(area, date1, searchtype);
         }
-        [Route("bell/GetLSItemsByAreaDate/{area}/{billdate}")]
+        [Route("bell/GetLSItemsByAreaDate/{report}/{area}/{shop}/{billdate}")]
         [HttpGet]
-        public tblBills_Bell[] GetLSItemsByAreaDate(string area, string billdate)
-        {
-            //not using for now.
-            return objDAL_Bell.GetLSItemsByAreaDate(area, billdate);
+        public tblBills_Bell[] GetLSItemsByAreaDate(string report, string area, string shop, string billdate)
+        {            
+            return objDAL_Bell.GetLSItemsByAreaDate(report,area,shop, billdate);
         }
         [Route("bell/GetLSItemsByMonth/{custid}/{area}/{shop}/{date1}")]
         [HttpGet]
@@ -364,6 +363,13 @@ namespace ZionWebAPI.Controllers
         public tblItemMaster[] GetStockDetails(string type, string category)
         {
             return objDAL_Bell.GetStockDetails(type, category);
+        }
+        
+        [Route("bell/GetPendingOrders/{type}/{strGroupBy}")]
+        [HttpGet]
+        public tblItemMaster[] GetPendingOrders(string type, string strGroupBy)
+        {
+            return objDAL_Bell.GetPendingOrders(type,strGroupBy);
         }
         [Route("bell/GetStockTransactions/{category}/{transtype}/{date1}/{date2}/{username}")]
         [HttpGet]
