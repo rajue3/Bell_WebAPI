@@ -19,6 +19,7 @@ using System.Text;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Web.Services.Description;
 using System.Web.UI.WebControls;
+using static ZionAPI.tblOrderItems;
 
 namespace ZionAPI.DataAdapaters
 {
@@ -1219,11 +1220,15 @@ namespace ZionAPI.DataAdapaters
         }
         public string GetWeeklySalesByItems(searchPayLoad objRequest)
         {
+            string SP_NAME = "USP_ITEMS_WISE_SALES_COUNT_BY_ITEMNAME";
+            if (objRequest.reportType == "weekwisebyarea" || objRequest.reportType == "chartdata" || objRequest.reportType == "chartdatabymonth")
+                SP_NAME = "BELL_WEEK_WISE_SALES_COUNT_BY_BILLDATE";
+
             DataTable table = new DataTable();
             SqlDataReader myReader;
             using (SqlConnection myCon = new SqlConnection(strDBConnectionString))
             {
-                SqlCommand cmd = new SqlCommand("USP_ITEMS_WISE_SALES_COUNT_BY_ITEMNAME", myCon);
+                SqlCommand cmd = new SqlCommand(SP_NAME, myCon);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@TYPE", objRequest.reportType);
                 cmd.Parameters.AddWithValue("@AREA", objRequest.area);
@@ -1238,7 +1243,7 @@ namespace ZionAPI.DataAdapaters
                 myReader.Close();
                 myCon.Close();
             }
-            //return ConvertDataTableToJson(table);
+            ////return ConvertDataTableToJson(table);
             if (table != null && table.Rows.Count > 0)
             {
                 System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
@@ -1251,7 +1256,8 @@ namespace ZionAPI.DataAdapaters
                     row.Add("SNO.", varCounter++);
                     foreach (DataColumn col in table.Columns)
                     {
-                        row.Add(col.ColumnName, dr[col]);
+                        row.Add(col.ColumnName, string.IsNullOrEmpty(Convert.ToString(dr[col])) ? "0" : dr[col]);
+                        //row.Add(col.ColumnName, dr[col] ?? "0");
                     }
                     rows.Add(row);
                 }

@@ -280,6 +280,16 @@ namespace ZionAPI
         {
             get { return Convert.ToInt16(Rate) * Convert.ToInt16(Qty); }
         }
+        //public class BellChartData
+        //{
+        //    public string[] labels { get; set; }
+        //    public object[] BellDataSets { get; set; }
+        //}
+        //public class BellChartDataSets
+        //{
+        //    public string label { get; set; }
+        //    public string[] data { get; set; }
+        //}
     }
 
 }
