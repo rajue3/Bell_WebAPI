@@ -1221,7 +1221,8 @@ namespace ZionAPI.DataAdapaters
         public string GetWeeklySalesByItems(searchPayLoad objRequest)
         {
             string SP_NAME = "USP_ITEMS_WISE_SALES_COUNT_BY_ITEMNAME";
-            if (objRequest.reportType == "weekwisebyarea" || objRequest.reportType == "chartdata" || objRequest.reportType == "chartdatabymonth")
+            if (objRequest.reportType == "weekwisebyarea" || objRequest.reportType == "chartdata" || objRequest.reportType == "chartdatabymonth"
+                || objRequest.reportType == "itemwisesales" || objRequest.reportType == "weeklyitemwisesales" || objRequest.reportType == "monthlyitemwisesales")
                 SP_NAME = "BELL_WEEK_WISE_SALES_COUNT_BY_BILLDATE";
 
             DataTable table = new DataTable();
@@ -1242,6 +1243,34 @@ namespace ZionAPI.DataAdapaters
                 table.Load(myReader);
                 myReader.Close();
                 myCon.Close();
+            }
+            //To add Total for each COL
+            DataTable dtNew = new DataTable();
+            dtNew = table;
+            decimal ColumnTotal;
+            decimal varTotal;
+            string operatorName = "";
+            string strLineCount = "";
+            if (objRequest.reportType == "itemwisesales" || objRequest.reportType == "weeklyitemwisesales" || objRequest.reportType == "monthlyitemwisesales"
+                || objRequest.reportType == "chartdata" || objRequest.reportType == "chartdatabymonth")
+            {
+                foreach (DataColumn col in table.Columns)
+                {
+                    ColumnTotal = 0;
+                    varTotal = 0;
+                    if (col.ColumnName != "SNO." && col.ColumnName != "SHOPNAME" && col.ColumnName != "NAME" && col.ColumnName != "ITEMCODE")
+                    {
+                        foreach (DataRow dr in table.Rows)
+                        {
+                            //if (dr[col] == null) varTotal = 0;
+                            if (!(dr[col] is DBNull)) varTotal = Convert.ToDecimal(dr[col]);
+                            else varTotal = varTotal = 0;
+
+                            ColumnTotal = ColumnTotal + varTotal;
+                        }
+                        dtNew.Columns[col.ColumnName].ColumnName = dtNew.Columns[col.ColumnName].ColumnName + " - Tot:" + ColumnTotal.ToString();
+                    }
+                }
             }
             ////return ConvertDataTableToJson(table);
             if (table != null && table.Rows.Count > 0)
